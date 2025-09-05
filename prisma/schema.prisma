@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -14,18 +8,289 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           Int      @id @default(autoincrement())
+  kindeId      String   @unique
+  email        String   
+  firstName    String
+  lastName     String
+  role         Role     @default(NORMAL)
+  picture      String?
+  bio          String?
+  isOnBoarded  Boolean  @default(false)
+  age          Int?
+  contactNo    String?
+  createdAt    DateTime @default(now())
+  gender       Gender?
+  latitude     Float?
+  locationName String?
+  longitude    Float?
+  ngoId        Int?
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  createdEvents    Event[]
+  feedbacks        EventFeedback[]
+  participations   EventParticipation[]
+  registeredEvents EventRegistration[]
+  pointsHistory    PointsHistory[]
+  ngo              NGO?                 @relation(fields: [ngoId], references: [id])
+  userBadges       UserBadges[]
+  userXP           UserXP?
+
+  // Community Features
+  posts        Post[]
+  postLikes    PostLike[]
+  postComments PostComment[]
+
+  // Rewards System
+  userRewards UserReward[]
+}
+
+model NGO {
+  id                Int      @id @default(autoincrement())
+  name              String
+  contactNo         String
+  latitude          Float
+  longitude         Float
+  locationName      String
+  organizationSize  Int
+  establishmentYear Int
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  events            Event[]
+  organizers        User[]
+}
+
+model Event {
+  id             Int                  @id @default(autoincrement())
+  title          String
+  description    String
+  latitude       Float
+  longitude      Float
+  locationName   String
+  date           DateTime
+  startTime      DateTime
+  endTime        DateTime?
+  wasteTargetKg  Float
+  status         EventStatus          @default(UPCOMING)
+  joinCode       String               @unique
+  creatorId      Int
+  ngoId          Int
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  creator        User                 @relation(fields: [creatorId], references: [id])
+  ngo            NGO                  @relation(fields: [ngoId], references: [id])
+  feedbacks      EventFeedback[]
+  participations EventParticipation[]
+  registrations  EventRegistration[]
+  pointsHistory  PointsHistory[]
+
+  // Community Features
+  posts Post[]
+
+  // Impact Tracking
+  impactStats ImpactStat[]
+}
+
+model EventRegistration {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  eventId   Int
+  hasJoined Boolean   @default(false)
+  joinedAt  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+}
+
+model EventParticipation {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  eventId             Int
+  wasteCollectedKg    Float    @default(0)
+  wasteDescription    String?
+  proofImageUrl       String?
+  afterImageUrl       String?
+  wasteImageUrls      String[]
+  collectionLatitude  Float?
+  collectionLongitude Float?
+  collectionLocation  String?
+  xpEarned            Int      @default(0)
+  isVerified          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  event               Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+}
+
+model UserXP {
+  id                      Int       @id @default(autoincrement())
+  userId                  Int       @unique
+  totalXP                 Int       @default(0)
+  currentLevel            Int       @default(1)
+  currentStreak           Int       @default(0)
+  longestStreak           Int       @default(0)
+  lastParticipated        DateTime?
+  totalEventsParticipated Int       @default(0)
+  totalWasteCollected     Float     @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Badges {
+  id              Int          @id @default(autoincrement())
+  name            String       @unique
+  description     String
+  iconUrl         String?
+  requiredXP      Int?
+  requiredEvents  Int?
+  requiredWasteKg Float?
+  requiredStreak  Int?
+  requiredLevel   Int?
+  category        String
+  rarity          String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  userBadges      UserBadges[]
+}
+
+model UserBadges {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  badgeId  Int
+  earnedAt DateTime @default(now())
+  badge    Badges   @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+}
+
+model PointsHistory {
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  pointsEarned    Int
+  reason          String
+  eventId         Int?
+  participationId Int?
+  createdAt       DateTime @default(now())
+  event           Event?   @relation(fields: [eventId], references: [id])
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EventFeedback {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  eventId   Int
+  rating    Int      @default(5)
+  comment   String?
+  category  String?
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+}
+
+// Community Feed Models
+model Post {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  eventId   Int?
+  content   String?
+  mediaUrl  String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event?        @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  likes     PostLike[]
+  comments  PostComment[]
+}
+
+model PostLike {
+  id      Int      @id @default(autoincrement())
+  postId  Int
+  userId  Int
+  likedAt DateTime @default(now())
+  post    Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model PostComment {
+  id          Int      @id @default(autoincrement())
+  postId      Int
+  userId      Int
+  commentText String
+  commentedAt DateTime @default(now())
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Rewards System
+model Reward {
+  id             Int          @id @default(autoincrement())
+  name           String
+  description    String
+  pointsRequired Int
+  category       String // e.g., "eco_products", "vouchers", "certificates"
+  imageUrl       String?
+  isActive       Boolean      @default(true)
+  sponsorName    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  userRewards    UserReward[]
+}
+
+model UserReward {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  rewardId   Int
+  redeemedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward     Reward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rewardId])
+}
+
+// Impact Tracking
+model ImpactStat {
+  id              Int      @id @default(autoincrement())
+  eventId         Int?
+  totalWasteKg    Float    @default(0)
+  totalVolunteers Int      @default(0)
+  durationHours   Float?
+  carbonSaved     Float? // estimated carbon footprint reduction
+  treesEquivalent Int? // trees equivalent to waste collected
+  reportedAt      DateTime @default(now())
+  event           Event?   @relation(fields: [eventId], references: [id], onDelete: SetNull)
+}
+
 enum Role {
   NORMAL
   ADMIN
+  ORGANISER
 }
 
-model User {
-  id          Int     @id @default(autoincrement())
-  kindeId     String  @unique
-  email       String  @unique
-  firstName   String
-  lastName    String
-  role        Role    @default(NORMAL)
-  picture     String?
-  isOnBoarded Boolean @default(false)
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
 }
