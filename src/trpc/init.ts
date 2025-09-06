@@ -10,10 +10,10 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     const { isAuthenticated, getUser } = getKindeServerSession();
     const user = await getUser();
     const isAuthed = await isAuthenticated();
-    
+
     console.log("TRPC Context - isAuthed:", isAuthed);
     console.log("TRPC Context - user:", user ? { id: user.id, email: user.email } : null);
-    
+
     return {
         user,
         db: prisma,
@@ -26,7 +26,11 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 })
 
 const isAuthed = t.middleware(async ({ next, ctx }) => {
+    console.log("Auth middleware - isAuthed:", ctx.isAuthed);
+    console.log("Auth middleware - user:", ctx.user ? { id: ctx.user.id, email: ctx.user.email } : null);
+
     if (!ctx.isAuthed) {
+        console.log("Auth middleware - User not authenticated");
         throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "You must be logged in to access this resource",
@@ -34,17 +38,22 @@ const isAuthed = t.middleware(async ({ next, ctx }) => {
     }
 
     if (!ctx.user?.id) {
+        console.log("Auth middleware - No user ID found");
         throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "Invalid user session",
         })
     }
 
+    console.log("Auth middleware - Looking up user with kindeId:", ctx.user.id);
     const dbUser = await prisma.user.findUnique({
         where: { kindeId: ctx.user.id }
     });
 
+    console.log("Auth middleware - dbUser found:", dbUser ? { id: dbUser.id, email: dbUser.email } : null);
+
     if (!dbUser) {
+        console.log("Auth middleware - User not found in database");
         throw new TRPCError({
             code: "UNAUTHORIZED",
             message: "User not found in database",

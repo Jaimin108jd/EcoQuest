@@ -22,6 +22,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs"
 
 interface SidebarProps {
     userRole: "ORGANISER" | "NORMAL" | "ADMIN"
@@ -37,18 +38,6 @@ const organizerNavItems = [
         href: "/dash/org",
         icon: Home,
         description: "Overview & Impact Analytics"
-    },
-    {
-        label: "Cleanup Events",
-        href: "/dash/org/events",
-        icon: Recycle,
-        description: "Organize cleanup events"
-    },
-    {
-        label: "Volunteers",
-        href: "/dash/org/participants",
-        icon: Users,
-        description: "Manage volunteers"
     },
     {
         label: "Impact Analytics",
@@ -78,27 +67,15 @@ const userNavItems = [
         description: "Find cleanup events nearby"
     },
     {
-        label: "My Cleanups",
-        href: "/dash/usr/my-events",
-        icon: Clock,
-        description: "Your registered cleanups"
-    },
-    {
-        label: "Impact Tracker",
+        label: "Activity History",
         href: "/dash/usr/history",
         icon: Target,
         description: "Your environmental impact"
     },
     {
-        label: "Leaderboard",
+        label: "Badges",
         href: "/dash/usr/badges",
-        icon: Trophy,
-        description: "Rankings & achievements"
-    },
-    {
-        label: "Settings",
-        href: "/dash/usr/settings",
-        icon: Settings,
+        icon: Award,
         description: "Account & preferences"
     }
 ]
@@ -202,16 +179,18 @@ export function Sidebar({ userRole, userName, ngoName, isCollapsed, setIsCollaps
 
             {/* Footer */}
             <div className="p-4 border-t border-[#01DE82]/20">
-                <Button
-                    variant="ghost"
-                    className={`
+                <LogoutLink>
+                    <Button
+                        variant="ghost"
+                        className={`
             w-full text-white/70 hover:text-white hover:bg-red-500/10 hover:border-red-500/30 transition-colors
             ${isCollapsed ? 'px-0' : 'justify-start'}
           `}
-                >
-                    <LogOut className="h-5 w-5" />
-                    {!isCollapsed && <span className="ml-3">Sign Out</span>}
-                </Button>
+                    >
+                        <LogOut className="h-5 w-5" />
+                        {!isCollapsed && <span className="ml-3">Sign Out</span>}
+                    </Button>
+                </LogoutLink>
             </div>
         </aside>
     )

@@ -3,9 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/providers/auth-provider";
 import { TRPCReactProvider } from "@/trpc/client";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "./api/uploadthing/core";
+import {
+  SpacemanThemeProvider,
+} from '@space-man/react-theme-animation'
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,15 +30,14 @@ export default function RootLayout({
   return (
     <TRPCReactProvider>
       <AuthProvider>
-        <html lang="en">
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
-            <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)}
-            />
-            {children}
-          </body>
-        </html>
+          <html lang="en">
+            <body
+              className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+
+              {children}
+            </body>
+          </html>
       </AuthProvider>
     </TRPCReactProvider>
   );

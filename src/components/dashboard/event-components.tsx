@@ -166,10 +166,6 @@ export function EventCard({
 
                                 {event.status === "ONGOING" && (
                                     <>
-                                        <DropdownMenuItem className="hover:bg-[#01DE82]/10">
-                                            <QrCode className="h-4 w-4 mr-2" />
-                                            Show QR Code
-                                        </DropdownMenuItem>
                                         <DropdownMenuItem
                                             onClick={() => onEnd?.(event.id)}
                                             className="hover:bg-orange-500/10 text-orange-400"
@@ -249,29 +245,6 @@ export function EventCard({
                         </div>
                     </div>
 
-                    {event.status === "ONGOING" && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg"
-                        >
-                            <div className="flex items-center justify-between">
-                                <div className="text-green-400 text-sm font-medium">
-                                    Event is live!
-                                </div>
-                                <Button
-                                    size="sm"
-                                    className="bg-green-500 hover:bg-green-600 text-white"
-                                >
-                                    <QrCode className="h-4 w-4 mr-1" />
-                                    QR Code
-                                </Button>
-                            </div>
-                            <p className="text-green-400/80 text-xs mt-1">
-                                Join Code: <span className="font-mono font-bold">{event.joinCode}</span>
-                            </p>
-                        </motion.div>
-                    )}
                 </CardContent>
             </Card>
         </motion.div>
