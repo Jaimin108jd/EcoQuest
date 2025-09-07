@@ -15,13 +15,13 @@ export default function LoginForm() {
   return (
     <>
       {/* Social Login Buttons */}
-      <div className="flex gap-3 justify-center">
+      <div className="flex gap-4 justify-center">
         <LoginLink authUrlParams={{ connection_id: "conn_0195607bb367ae39156fd585d8c1624f" }}>
           <motion.div
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Button variant="outline" size="icon" className="rounded-full cursor-pointer border-[#01DE82]/30 text-white hover:bg-[#01DE82]/10 hover:border-[#01DE82]/50 transition-all duration-200 bg-transparent backdrop-blur-sm">
+            <Button variant="outline" size="icon" className="rounded-md cursor-pointer border-[#01DE82]/30 text-white hover:bg-[#01DE82]/10 hover:border-[#01DE82]/50 transition-all duration-200 bg-transparent backdrop-blur-sm">
               <FcGoogle />
             </Button>
           </motion.div>
@@ -32,7 +32,7 @@ export default function LoginForm() {
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
-            <Button size="icon" variant="outline" className="rounded-full cursor-pointer border-[#01DE82]/30  hover:bg-[#01DE82]/10 hover:border-[#01DE82]/50 transition-all duration-200 bg-transparent backdrop-blur-sm">
+            <Button size="icon" variant="outline" className="rounded-md cursor-pointer border-[#01DE82]/30  hover:bg-[#01DE82]/10 hover:border-[#01DE82]/50 transition-all duration-200 bg-transparent backdrop-blur-sm">
               <FaGithub color='white' />
             </Button>
           </motion.div>
@@ -60,7 +60,7 @@ export default function LoginForm() {
         <Input
           id="email"
           type="email"
-          placeholder="Enter your email"
+          placeholder="Enter your email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="h-12 border-[#01DE82]/30 bg-[#01DE82]/5 text-white placeholder:text-white/40 focus:border-[#01DE82] focus:ring-[#01DE82]/20 backdrop-blur-sm"
@@ -87,7 +87,7 @@ export default function LoginForm() {
               whileHover={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3 }}
             />
-            <span className="relative z-10">Sign in to your account</span>
+            <span className="relative z-10">Sign in to your Account</span>
           </Button>
         </LoginLink>
       </motion.div>
