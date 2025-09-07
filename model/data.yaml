@@ -1,0 +1,5 @@
+train: E:\TACO\dataset\images\train
+val: E:\TACO\dataset\images\val
+
+nc: 5
+names: [plastic, paper, metal, glass, organic]
