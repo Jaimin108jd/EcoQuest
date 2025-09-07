@@ -17,8 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nextjs Auth Template Created By BuddyCodez",
-  description: "A template for Next.js applications with authentication",
+  title: "CleanQuest – Gamifying Environmental Clean-Up",
+  description:
+    "A Next.js web app that motivates volunteers and organizers through gamification to join clean-up events, track impact, and earn rewards for eco-friendly actions.",
 };
 export const experimental_ppr = true;
 

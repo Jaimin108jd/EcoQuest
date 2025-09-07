@@ -110,7 +110,7 @@ export default function LandingPage() {
               >
                 <Button
                   variant="ghost"
-                  className="text-white/80 hover:text-green-400 hover:bg-green-400/10"
+                  className="text-white/80 hover:text-green-400 hover:bg-green-500/10"
                 >
                   Sign In
                 </Button>
@@ -124,7 +124,7 @@ export default function LandingPage() {
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <Button
-                  className="bg-gradient-to-r from-green-400 to-green-600 text-black hover:from-green-500 hover:to-green-700 relative overflow-hidden"
+                  className="bg-gradient-to-r from-green-500 to-green-600 text-black hover:from-green-500 hover:to-green-700 relative overflow-hidden"
                 >
                   <motion.div
                     className="absolute inset-0 bg-white/15"
