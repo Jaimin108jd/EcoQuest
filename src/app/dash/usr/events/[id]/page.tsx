@@ -10,8 +10,10 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CalendarDays, MapPin, Users, Target, Clock, CheckCircle2, Trash2, Star, Award, KeyRound } from "lucide-react"
+import { CalendarDays, MapPin, Users, Target, Clock, CheckCircle2, Trash2, Star, Award, KeyRound, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { format } from "date-fns"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
@@ -207,6 +209,18 @@ export default function EventDetailsPage() {
     const { data: event, isLoading, refetch } = useQuery(trpc.events.getById.queryOptions({ id: eventId }))
     const [joinCode, setJoinCode] = useState("")
 
+    // Auto-fill join code from URL parameters (QR code functionality)
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const urlParams = new URLSearchParams(window.location.search)
+            const qrJoinCode = urlParams.get('joinCode')
+            if (qrJoinCode) {
+                setJoinCode(qrJoinCode.toUpperCase())
+                toast.info("Join code auto-filled from URL! You can now join the event.")
+            }
+        }
+    }, [])
+
     const joinByCodeMutation = useMutation({
         ...trpc.events.joinByCode.mutationOptions(),
         onSuccess: () => {
@@ -242,6 +256,25 @@ export default function EventDetailsPage() {
     })
 
     const [isWasteSheetOpen, setIsWasteSheetOpen] = useState(false)
+    const [isFeedbackSheetOpen, setIsFeedbackSheetOpen] = useState(false)
+    const [feedbackData, setFeedbackData] = useState({
+        rating: 5,
+        comment: "",
+        category: "general"
+    })
+
+    const submitFeedbackMutation = useMutation({
+        ...trpc.events.submitFeedback.mutationOptions(),
+        onSuccess: () => {
+            toast.success("🎉 Feedback submitted successfully! Thank you for your review!")
+            setFeedbackData({ rating: 5, comment: "", category: "general" })
+            setIsFeedbackSheetOpen(false)
+            queryClient.invalidateQueries({ queryKey: trpc.events.getById.queryKey() })
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to submit feedback")
+        }
+    })
 
     const handleJoinByCode = async () => {
         if (!joinCode.trim()) {
@@ -253,6 +286,20 @@ export default function EventDetailsPage() {
 
     const handleCheckIn = async () => {
         checkInMutation.mutate({ eventId })
+    }
+
+    const handleSubmitFeedback = async () => {
+        if (!feedbackData.comment.trim()) {
+            toast.error("Please add a comment for your feedback")
+            return
+        }
+
+        submitFeedbackMutation.mutate({
+            eventId,
+            rating: feedbackData.rating,
+            comment: feedbackData.comment.trim(),
+            category: feedbackData.category
+        })
     }
 
     if (isLoading) {
@@ -284,7 +331,9 @@ export default function EventDetailsPage() {
 
     const isUpcoming = event.status === "UPCOMING"
     const isOngoing = event.status === "ONGOING"
+    const isCompleted = event.status === "COMPLETED"
     const canSubmitWaste = event.currentUser.hasJoined && isOngoing && !event.currentUser.hasParticipated
+    const canLeaveFeedback = isCompleted && event.currentUser.hasParticipated && !event.currentUser.hasFeedback
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-[#020E0E]">
@@ -881,6 +930,124 @@ export default function EventDetailsPage() {
                                                     </motion.div>
                                                     <span className="text-sm font-medium">You've participated!</span>
                                                 </motion.div>
+                                            )}
+
+                                            {canLeaveFeedback && (
+                                                <Sheet open={isFeedbackSheetOpen} onOpenChange={setIsFeedbackSheetOpen}>
+                                                    <SheetTrigger asChild>
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.05, y: -5 }}
+                                                            whileTap={{ scale: 0.95 }}
+                                                        >
+                                                            <Button className="w-full bg-gradient-to-r from-[#01DE82] to-[#05614B] text-[#020E0E] hover:from-[#05614B] hover:to-[#01DE82] font-bold shadow-2xl shadow-[#01DE82]/20 relative overflow-hidden">
+                                                                <motion.div
+                                                                    className="absolute inset-0 bg-white/20"
+                                                                    initial={{ scale: 0, opacity: 0 }}
+                                                                    whileHover={{ scale: 1, opacity: 1 }}
+                                                                    transition={{ duration: 0.3 }}
+                                                                />
+                                                                <span className="relative z-10 flex items-center">
+                                                                    <MessageSquare className="h-4 w-4 mr-2" />
+                                                                    Leave Feedback
+                                                                </span>
+                                                            </Button>
+                                                        </motion.div>
+                                                    </SheetTrigger>
+                                                    <SheetContent className="w-full sm:max-w-lg bg-[#020E0E] border-[#01DE82]/20 p-0 flex flex-col h-full">
+                                                        <SheetHeader className="px-8 py-6 border-b border-[#01DE82]/20 flex-shrink-0">
+                                                            <SheetTitle className="text-2xl font-bold text-[#01DE82] flex items-center gap-3">
+                                                                <MessageSquare className="h-7 w-7" />
+                                                                Event Feedback
+                                                            </SheetTitle>
+                                                            <SheetDescription className="text-white/60 text-base mt-2">
+                                                                Share your experience and help us improve future events
+                                                            </SheetDescription>
+                                                        </SheetHeader>
+
+                                                        <div className="flex-1 overflow-auto">
+                                                            <div className="px-8 py-6 space-y-6">
+                                                                {/* Rating */}
+                                                                <div className="space-y-3">
+                                                                    <label className="text-sm font-medium text-[#01DE82]">
+                                                                        Overall Rating *
+                                                                    </label>
+                                                                    <div className="flex items-center space-x-1">
+                                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                                            <motion.button
+                                                                                key={star}
+                                                                                type="button"
+                                                                                onClick={() => setFeedbackData(prev => ({ ...prev, rating: star }))}
+                                                                                className={`p-1 transition-colors ${star <= feedbackData.rating
+                                                                                        ? 'text-[#01DE82]'
+                                                                                        : 'text-white/30 hover:text-white/60'
+                                                                                    }`}
+                                                                                whileHover={{ scale: 1.2 }}
+                                                                                whileTap={{ scale: 0.9 }}
+                                                                            >
+                                                                                <Star className={`h-8 w-8 ${star <= feedbackData.rating ? 'fill-current' : ''}`} />
+                                                                            </motion.button>
+                                                                        ))}
+                                                                        <span className="ml-2 text-white/60">
+                                                                            {feedbackData.rating} out of 5 stars
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Category */}
+                                                                <div className="space-y-3">
+                                                                    <label className="text-sm font-medium text-[#01DE82]">
+                                                                        Feedback Category
+                                                                    </label>
+                                                                    <Select
+                                                                        value={feedbackData.category}
+                                                                        onValueChange={(value) => setFeedbackData(prev => ({ ...prev, category: value }))}
+                                                                    >
+                                                                        <SelectTrigger className="bg-[#020E0E]/50 border-[#01DE82]/30 text-white">
+                                                                            <SelectValue />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent className="bg-[#020E0E] border-[#01DE82]/30">
+                                                                            <SelectItem value="general">General Experience</SelectItem>
+                                                                            <SelectItem value="organization">Event Organization</SelectItem>
+                                                                            <SelectItem value="location">Location & Venue</SelectItem>
+                                                                            <SelectItem value="impact">Environmental Impact</SelectItem>
+                                                                            <SelectItem value="community">Community Engagement</SelectItem>
+                                                                            <SelectItem value="suggestion">Suggestions</SelectItem>
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </div>
+
+                                                                {/* Comment */}
+                                                                <div className="space-y-3">
+                                                                    <label className="text-sm font-medium text-[#01DE82]">
+                                                                        Your Feedback *
+                                                                    </label>
+                                                                    <Textarea
+                                                                        placeholder="Tell us about your experience, what you enjoyed, and how we can improve..."
+                                                                        value={feedbackData.comment}
+                                                                        onChange={(e) => setFeedbackData(prev => ({ ...prev, comment: e.target.value }))}
+                                                                        className="bg-[#020E0E]/50 border-[#01DE82]/30 text-white placeholder:text-white/50 focus:border-[#01DE82] focus:ring-[#01DE82]/20 min-h-[120px] resize-none"
+                                                                        maxLength={1000}
+                                                                    />
+                                                                    <div className="text-xs text-white/40 text-right">
+                                                                        {feedbackData.comment.length}/1000 characters
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Submit Button */}
+                                                                <Button
+                                                                    onClick={handleSubmitFeedback}
+                                                                    disabled={
+                                                                        !feedbackData.comment.trim() ||
+                                                                        submitFeedbackMutation.isPending
+                                                                    }
+                                                                    className="w-full bg-gradient-to-r from-[#01DE82] to-[#05614B] text-[#020E0E] font-bold py-3 hover:from-[#01DE82]/90 hover:to-[#05614B]/90 transition-all duration-300 shadow-lg hover:shadow-[#01DE82]/25"
+                                                                >
+                                                                    {submitFeedbackMutation.isPending ? "Submitting..." : "Submit Feedback"}
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </SheetContent>
+                                                </Sheet>
                                             )}
                                         </div>
                                     )}

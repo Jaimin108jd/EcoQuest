@@ -142,7 +142,7 @@ export const leaderboardRouter = createTRPCRouter({
                 const currentUserXP = await db.userXP.findUnique({
                     where: { userId: currentUser.id }
                 })
-                
+
                 if (currentUserXP) {
                     const higherRankedCount = await db.userXP.count({
                         where: {
@@ -171,7 +171,7 @@ export const leaderboardRouter = createTRPCRouter({
                 })
 
                 const currentUserXP = currentUserPoints._sum.pointsEarned || 0
-                
+
                 const higherRankedCount = await db.pointsHistory.groupBy({
                     by: ['userId'],
                     where: dateFilter,
@@ -265,9 +265,9 @@ export const leaderboardRouter = createTRPCRouter({
                 const userXPRecord = await db.userXP.findUnique({
                     where: { userId: currentUser.id }
                 })
-                
+
                 userXP = userXPRecord?.totalXP || 0
-                
+
                 const higherRankedCount = await db.userXP.count({
                     where: {
                         totalXP: {
@@ -288,7 +288,7 @@ export const leaderboardRouter = createTRPCRouter({
                 })
 
                 userXP = userPoints._sum.pointsEarned || 0
-                
+
                 const higherRankedUsers = await db.pointsHistory.groupBy({
                     by: ['userId'],
                     where: dateFilter,

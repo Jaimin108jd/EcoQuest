@@ -2,7 +2,7 @@ import * as motion from "motion/react-client"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Check, Star, Play, Shield, Clock, Zap, Sparkles, ArrowRight, Code, Palette, BarChart3 } from "lucide-react"
+import { Check, Star, Play, Shield, Clock, Zap, Sparkles, ArrowRight, Code, Palette, BarChart3, Users } from "lucide-react"
 import Link from "next/link"
 // No React client hooks in this server component
 import CursorFollower from "@/components/utils/cursor-follower"
@@ -19,96 +19,46 @@ const staggerContainer = {
   }
 }
 
-
-
-function BackgroundOrbs() {
-  return (
-    <>
-      {/* Primary animated orb - Simplified */}
-      <motion.div
-        className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-gradient-to-r from-[#01DE82]/20 to-[#05614B]/15 rounded-full blur-3xl"
-        animate={{
-          x: [0, 50, -25, 0],
-          scale: [1, 1.2, 0.9, 1],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
-      {/* Secondary animated orb - Simplified */}
-      <motion.div
-        className="absolute top-3/4 right-1/4 w-[350px] h-[350px] bg-gradient-to-l from-[#05614B]/20 to-[#01DE82]/10 rounded-full blur-3xl"
-        animate={{
-          x: [0, -60, 30, 0],
-          scale: [1, 0.8, 1.1, 1],
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2,
-        }}
-      />
-
-      {/* Tertiary animated orb - Simplified */}
-      <motion.div
-        className="absolute top-1/2 left-1/2 w-[250px] h-[250px] bg-gradient-to-tr from-[#01DE82]/15 to-[#05614B]/8 rounded-full blur-2xl"
-        animate={{
-          x: [0, 40, -40, 0],
-          scale: [1, 1.3, 0.8, 1],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 4,
-        }}
-      />
-    </>
-  )
-}
-
 export default function LandingPage() {
 
   // Memoize background orbs with reduced complexity
   // Background orbs component (no hooks)
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#020E0E]">
+    <div className="min-h-screen w-full relative bg-black">
+      {/* Arctic Lights Background with Top Glow */}
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(34, 197, 94, 0.25), transparent 70%), #000000",
+        }}
+      />
+
       {/* Enhanced cursor follower that follows mouse */}
       <CursorFollower />
 
-      {/* Optimized animated gradient background */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#020E0E] via-[#05614B]/20 to-[#020E0E]" />
-        <BackgroundOrbs />
-
-        {/* Reduced floating particles for performance */}
-        {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-[#01DE82]/50 rounded-full"
-            style={{
-              left: `${25 + i * 25}%`,
-              top: `${35 + i * 15}%`,
-            }}
-            animate={{
-              y: [0, -50, 0],
-              opacity: [0, 0.8, 0],
-              scale: [0, 1, 0],
-            }}
-            transition={{
-              duration: 3 + i,
-              repeat: Infinity,
-              delay: i * 0.8,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </div>
+      {/* Subtle floating particles for Arctic Lights theme */}
+      {[...Array(8)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-green-400/30 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -100, 0],
+            opacity: [0, 0.6, 0],
+            scale: [0, 1, 0],
+          }}
+          transition={{
+            duration: 4 + Math.random() * 3,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+            ease: "easeInOut"
+          }}
+        />
+      ))}
 
       {/* Optimized Header with reduced micro-interactions */}
       <motion.header
@@ -119,24 +69,24 @@ export default function LandingPage() {
       >
         <nav className="flex justify-between items-center max-w-7xl mx-auto">
           <motion.div
-            className="text-2xl font-bold text-[#01DE82] relative"
+            className="text-2xl font-bold text-green-400 relative"
             whileHover={{ scale: 1.03 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
           >
-            ProductAI
+            EcoQuest
             <motion.div
-              className="absolute -inset-2 bg-[#01DE82]/15 rounded-lg blur-sm -z-10"
+              className="absolute -inset-2 bg-green-400/15 rounded-lg blur-sm -z-10"
               animate={{ opacity: [0.3, 0.5, 0.3] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
           </motion.div>
 
           <div className="hidden md:flex space-x-8">
-            {["Features", "Pricing", "About"].map((item, index) => (
+            {["Features", "Events", "Impact"].map((item, index) => (
               <motion.a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className="text-white/80 hover:text-[#01DE82] transition-colors duration-200 relative group"
+                className="text-white/80 hover:text-green-400 transition-colors duration-200 relative group"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.05 }}
@@ -144,14 +94,14 @@ export default function LandingPage() {
               >
                 {item}
                 <motion.div
-                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#01DE82] group-hover:w-full"
+                  className="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full"
                   transition={{ duration: 0.2 }}
                 />
               </motion.a>
             ))}
           </div>
 
-          =  <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <Link href="/auth/login">
               <motion.div
                 whileHover={{ scale: 1.03 }}
@@ -160,7 +110,7 @@ export default function LandingPage() {
               >
                 <Button
                   variant="ghost"
-                  className="text-white/80 hover:text-[#01DE82] hover:bg-[#01DE82]/10"
+                  className="text-white/80 hover:text-green-400 hover:bg-green-400/10"
                 >
                   Sign In
                 </Button>
@@ -174,7 +124,7 @@ export default function LandingPage() {
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 <Button
-                  className="bg-gradient-to-r from-[#01DE82] to-[#05614B] text-[#020E0E] hover:from-[#05614B] hover:to-[#01DE82] relative overflow-hidden"
+                  className="bg-gradient-to-r from-green-400 to-green-600 text-black hover:from-green-500 hover:to-green-700 relative overflow-hidden"
                 >
                   <motion.div
                     className="absolute inset-0 bg-white/15"
@@ -208,17 +158,17 @@ export default function LandingPage() {
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="inline-block"
           >
-            <Badge className="mb-6 bg-[#01DE82]/10 text-[#01DE82] border-[#01DE82]/30 hover:bg-[#01DE82]/20 backdrop-blur-sm">
+            <Badge className="mb-6 bg-green-400/10 text-green-400 border-green-400/30 hover:bg-green-400/20 backdrop-blur-sm">
               <span className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4" />
-                Now with AI-powered automation
+                Gamified Environmental Clean-Up Platform
               </span>
             </Badge>
           </motion.div>
 
           {/* Optimized title with reduced letter-by-letter complexity */}
           <div className="text-5xl md:text-7xl font-bold mb-6 text-balance">
-            {["Turn", "Your", "Ideas", "into"].map((word, wordIndex) => (
+            {["Turn", "Clean-Up", "Into", "a"].map((word, wordIndex) => (
               <motion.span
                 key={wordIndex}
                 className="inline-block mr-4 text-white"
@@ -231,7 +181,7 @@ export default function LandingPage() {
             ))}
             <br />
             <motion.span
-              className="bg-gradient-to-r from-[#01DE82] via-[#05614B] to-[#01DE82] bg-clip-text text-transparent bg-[length:200%_100%]"
+              className="bg-gradient-to-r from-green-400 via-green-500 to-green-400 bg-clip-text text-transparent bg-[length:200%_100%]"
               initial={{ opacity: 0, y: 15 }}
               animate={{
                 opacity: 1,
@@ -244,7 +194,7 @@ export default function LandingPage() {
                 backgroundPosition: { duration: 2, repeat: Infinity, ease: "linear" }
               }}
             >
-              Reality
+              Game
             </motion.span>
             <motion.span
               className="text-white"
@@ -252,7 +202,7 @@ export default function LandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35, duration: 0.5 }}
             >
-              {" "}in 60 Seconds
+              {" "}We All Win
             </motion.span>
           </div>
 
@@ -262,12 +212,12 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
-            Our{" "}
-            <span className="text-[#01DE82] font-semibold">
-              AI-powered platform
+            Join{" "}
+            <span className="text-green-400 font-semibold">
+              thousands of eco-warriors
             </span>
-            {" "}transforms your concepts into fully functional prototypes, complete with design,
-            code, and deployment—all in under a minute.
+            {" "}making a real difference. Discover clean-up events, earn rewards, climb leaderboards,
+            and track your environmental impact—all while having fun with your community.
           </motion.p>
 
           <motion.div
@@ -282,7 +232,7 @@ export default function LandingPage() {
             >
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-[#01DE82] to-[#05614B] text-[#020E0E] hover:from-[#05614B] hover:to-[#01DE82] text-lg px-8 py-4 font-semibold shadow-2xl shadow-[#01DE82]/20 relative overflow-hidden group"
+                className="bg-gradient-to-r from-green-400 to-green-600 text-black hover:from-green-500 hover:to-green-700 text-lg px-8 py-4 font-semibold shadow-2xl shadow-green-400/20 relative overflow-hidden group"
               >
                 <motion.div
                   className="absolute inset-0 bg-white/15"
@@ -291,7 +241,7 @@ export default function LandingPage() {
                   transition={{ duration: 0.2 }}
                 />
                 <span className="relative z-10 flex items-center gap-2">
-                  Get Started Free
+                  Join the Mission
                   <Zap className="h-5 w-5" />
                 </span>
               </Button>
@@ -304,17 +254,17 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-[#01DE82]/30 text-[#01DE82] hover:bg-[#01DE82]/10 text-lg px-8 py-4 bg-transparent backdrop-blur-sm relative overflow-hidden group"
+                className="border-green-400/30 text-green-400 hover:bg-green-400/10 text-lg px-8 py-4 bg-transparent backdrop-blur-sm relative overflow-hidden group"
               >
                 <motion.div
-                  className="absolute inset-0 bg-[#01DE82]/5"
+                  className="absolute inset-0 bg-green-400/5"
                   initial={{ x: "-100%" }}
                   whileHover={{ x: "100%" }}
                   transition={{ duration: 0.4 }}
                 />
                 <span className="relative z-10 flex items-center gap-2">
                   <Play className="h-5 w-5" />
-                  Watch Demo
+                  View Events
                 </span>
               </Button>
             </motion.div>
@@ -329,33 +279,33 @@ export default function LandingPage() {
           transition={{ delay: 0.8, duration: 0.6 }}
           whileHover={{ scale: 1.01, y: -5 }}
         >
-          <div className="bg-[#01DE82]/5 backdrop-blur-xl rounded-3xl p-8 border border-[#01DE82]/20 relative overflow-hidden group">
+          <div className="bg-green-400/5 backdrop-blur-xl rounded-3xl p-8 border border-green-400/20 relative overflow-hidden group">
             <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-[#01DE82]/8 to-transparent"
+              className="absolute inset-0 bg-gradient-to-br from-green-400/8 to-transparent"
               animate={{ opacity: [0.4, 0.7, 0.4] }}
               transition={{ duration: 3, repeat: Infinity }}
             />
 
-            <div className="bg-gradient-to-br from-[#01DE82]/15 to-[#05614B]/8 rounded-2xl h-64 flex items-center justify-center relative overflow-hidden">
+            <div className="bg-gradient-to-br from-green-400/15 to-green-600/8 rounded-2xl h-64 flex items-center justify-center relative overflow-hidden">
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-[#01DE82]/15 to-transparent"
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-green-400/15 to-transparent"
                 animate={{ x: ["-100%", "100%"] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               />
 
               <motion.div
-                className="text-[#01DE82] text-lg font-semibold relative z-10"
+                className="text-green-400 text-lg font-semibold relative z-10"
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               >
-                Interactive Product Demo
+                Live Environmental Impact Dashboard
               </motion.div>
 
               {/* Simplified floating UI elements */}
               {[Code, Palette, BarChart3].map((Icon, index) => (
                 <motion.div
                   key={index}
-                  className="absolute text-[#01DE82]/30"
+                  className="absolute text-green-400/30"
                   style={{
                     left: `${30 + index * 25}%`,
                     top: `${40 + index * 10}%`,
@@ -395,7 +345,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
           >
             Why Choose{" "}
-            <span className="text-[#01DE82]">ProductAI</span>?
+            <span className="text-[#01DE82]">EcoQuest</span>?
           </motion.h2>
           <motion.p
             className="text-xl text-white/80 max-w-2xl mx-auto"
@@ -404,33 +354,33 @@ export default function LandingPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            Stop wasting weeks on manual development. Focus on what matters most—your vision.
+            Transform environmental action from a chore into an exciting community experience.
           </motion.p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {[
             {
-              icon: <Clock className="h-8 w-8" />,
-              title: "Save 90% of Development Time",
+              icon: <Users className="h-8 w-8" />,
+              title: "Gamified Community Engagement",
               description:
-                "Never spend months building prototypes again. Get from idea to working product in minutes, not weeks.",
+                "Earn XP, unlock badges, and climb leaderboards while making a real environmental impact with your community.",
               color: "from-[#01DE82]/20 to-[#05614B]/10",
               iconColor: "text-[#01DE82]"
             },
             {
-              icon: <Zap className="h-8 w-8" />,
-              title: "AI-Powered Intelligence",
+              icon: <BarChart3 className="h-8 w-8" />,
+              title: "Track Real Environmental Impact",
               description:
-                "Our advanced AI understands your requirements and generates production-ready code that actually works.",
+                "Monitor waste collected, events attended, and your contribution to a cleaner world with detailed analytics.",
               color: "from-[#05614B]/20 to-[#01DE82]/10",
               iconColor: "text-[#05614B]"
             },
             {
               icon: <Shield className="h-8 w-8" />,
-              title: "Enterprise-Grade Security",
+              title: "Verified Impact & Rewards",
               description:
-                "Sleep soundly knowing your projects are protected with bank-level encryption and compliance standards.",
+                "Get recognized for your efforts with digital certificates, eco-rewards, and social recognition from the community.",
               color: "from-[#01DE82]/15 to-[#05614B]/5",
               iconColor: "text-[#01DE82]"
             },
@@ -501,15 +451,15 @@ export default function LandingPage() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            Trusted by{" "}
+            Already helping{" "}
             <motion.span
               className="text-[#01DE82] font-semibold"
               animate={{ scale: [1, 1.05, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              50,000+
+              5,000+
             </motion.span>
-            {" "}developers and startups worldwide
+            {" "}volunteers make a difference across 50+ cities
           </motion.p>
 
           {/* Company Logos with enhanced animations */}
@@ -520,7 +470,7 @@ export default function LandingPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            {["TechCrunch", "Forbes", "ProductHunt", "Y Combinator"].map((company, index) => (
+            {["Green Earth NGO", "Clean City Initiative", "EcoVolunteers", "Urban Cleanup"].map((company, index) => (
               <motion.div
                 key={company}
                 className="text-white/40 text-lg font-medium hover:text-[#01DE82]/60 transition-colors cursor-pointer"
@@ -570,14 +520,14 @@ export default function LandingPage() {
               </motion.div>
 
               <blockquote className="text-xl text-white mb-6 italic relative z-10">
-                "ProductAI transformed our development process. What used to take our team{" "}
-                <span className="text-[#01DE82] font-semibold">3 weeks</span> now happens in{" "}
-                <span className="text-[#01DE82] font-semibold">30 minutes</span>. It's absolutely game-changing."
+                "EcoQuest transformed how our community approaches environmental action. What used to be{" "}
+                <span className="text-[#01DE82] font-semibold">isolated efforts</span> is now a{" "}
+                <span className="text-[#01DE82] font-semibold">citywide movement</span>. The gamification makes every clean-up event exciting!"
               </blockquote>
 
               <div className="text-white/80 relative z-10">
-                <div className="font-semibold text-[#01DE82]">Sarah Chen</div>
-                <div className="text-sm">CTO, InnovateNow</div>
+                <div className="font-semibold text-[#01DE82]">Maya Patel</div>
+                <div className="text-sm">Environmental Coordinator, Mumbai Clean Initiative</div>
               </div>
             </Card>
           </motion.div>
@@ -609,7 +559,7 @@ export default function LandingPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            Three simple steps to bring your ideas to life
+            Six simple steps to start making an environmental impact
           </motion.p>
         </div>
 
@@ -617,20 +567,20 @@ export default function LandingPage() {
           {[
             {
               step: "01",
-              title: "Describe Your Idea",
-              description: "Simply tell us what you want to build in plain English. No technical jargon required.",
+              title: "Discover Events",
+              description: "Browse local clean-up events and environmental challenges in your area.",
               color: "text-[#01DE82]"
             },
             {
               step: "02",
-              title: "AI Generates Everything",
-              description: "Our AI creates the design, writes the code, and sets up the infrastructure automatically.",
+              title: "Join & Participate",
+              description: "Register for events and start making a real environmental impact in your community.",
               color: "text-[#05614B]"
             },
             {
               step: "03",
-              title: "Deploy & Iterate",
-              description: "Your product goes live instantly. Make changes and see them reflected in real-time.",
+              title: "Earn Rewards",
+              description: "Collect points, badges, and achievements as you contribute to a cleaner environment.",
               color: "text-[#01DE82]"
             },
           ].map((step, index) => (
@@ -724,7 +674,7 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              Ready to Build the{" "}
+              Ready to Clean the{" "}
               <motion.span
                 className="text-[#01DE82]"
                 animate={{ textShadow: ["0 0 10px #01DE82", "0 0 20px #01DE82", "0 0 10px #01DE82"] }}
@@ -741,84 +691,9 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.4 }}
               viewport={{ once: true }}
             >
-              Join thousands of innovators who've already transformed their ideas into reality.
+              Join thousands of environmental champions making a real difference in their communities.
             </motion.p>
 
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8 relative z-10"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-[#01DE82] to-[#05614B] text-[#020E0E] hover:from-[#05614B] hover:to-[#01DE82] text-lg px-8 py-4 font-semibold shadow-2xl shadow-[#01DE82]/20 relative overflow-hidden group"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-white/20"
-                    initial={{ scale: 0, opacity: 0 }}
-                    whileHover={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <span className="relative z-10">Start Building Free</span>
-                </Button>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-[#01DE82]/30 text-[#01DE82] hover:bg-[#01DE82]/10 text-lg px-8 py-4 bg-transparent backdrop-blur-sm relative overflow-hidden"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-[#01DE82]/5"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: "100%" }}
-                    transition={{ duration: 0.6 }}
-                  />
-                  <span className="relative z-10">Schedule Demo</span>
-                </Button>
-              </motion.div>
-            </motion.div>
-
-            <motion.div
-              className="flex flex-col sm:flex-row gap-6 justify-center items-center text-sm text-white/60 relative z-10"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              viewport={{ once: true }}
-            >
-              {[
-                "Free 7-day trial",
-                "No credit card required",
-                "Cancel anytime"
-              ].map((feature, index) => (
-                <motion.div
-                  key={feature}
-                  className="flex items-center gap-2"
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.9 + index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
-                  >
-                    <Check className="h-4 w-4 text-[#01DE82]" />
-                  </motion.div>
-                  {feature}
-                </motion.div>
-              ))}
-            </motion.div>
           </Card>
         </motion.div>
       </motion.section>
@@ -837,7 +712,7 @@ export default function LandingPage() {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            ProductAI
+            EcoQuest
             <motion.div
               className="absolute -inset-2 bg-[#01DE82]/10 rounded-lg blur-sm -z-10"
               animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
@@ -879,7 +754,7 @@ export default function LandingPage() {
             transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
           >
-            © 2024 ProductAI. All rights reserved.
+            © 2024 EcoQuest. All rights reserved.
           </motion.p>
         </div>
       </motion.footer>

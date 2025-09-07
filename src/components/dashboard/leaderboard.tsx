@@ -68,10 +68,10 @@ function getRankTextColor(rank: number) {
     }
 }
 
-function LeaderboardEntry({ entry, index, isCurrentUser, isEmpty = false }: { 
+function LeaderboardEntry({ entry, index, isCurrentUser, isEmpty = false }: {
     entry?: LeaderboardEntry
     index: number
-    isCurrentUser: boolean 
+    isCurrentUser: boolean
     isEmpty?: boolean
 }) {
     if (isEmpty || !entry) {
@@ -99,9 +99,8 @@ function LeaderboardEntry({ entry, index, isCurrentUser, isEmpty = false }: {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.05 }}
-            className={`flex items-center justify-between py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-all duration-300 hover:bg-[#01DE82]/8 ${
-                isCurrentUser ? 'bg-[#01DE82]/15 border border-[#01DE82]/40' : 'bg-transparent border border-white/5 hover:border-[#01DE82]/30'
-            }`}
+            className={`flex items-center justify-between py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-all duration-300 hover:bg-[#01DE82]/8 ${isCurrentUser ? 'bg-[#01DE82]/15 border border-[#01DE82]/40' : 'bg-transparent border border-white/5 hover:border-[#01DE82]/30'
+                }`}
             whileHover={{ scale: 1.01, x: 3 }}
         >
             <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
@@ -197,7 +196,7 @@ export function Leaderboard() {
                     animate={{ opacity: [0.3, 0.6, 0.3] }}
                     transition={{ duration: 4, repeat: Infinity }}
                 />
-                
+
                 <div className="p-4 sm:p-6 relative z-10">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
                         <div className="flex items-center space-x-3">

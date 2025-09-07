@@ -9,6 +9,8 @@ import { communityRouter } from './community';
 import { rewardsRouter } from './rewards';
 import { badgesRouter } from './badges';
 import { leaderboardRouter } from './leaderboard';
+import { analyticsRouter } from './analytics';
+import { ngoRouter } from './ngo';
 
 export const appRouter = createTRPCRouter({
     user: userRouter,
@@ -19,7 +21,9 @@ export const appRouter = createTRPCRouter({
     community: communityRouter,
     rewards: rewardsRouter,
     badges: badgesRouter,
-    leaderboard: leaderboardRouter
+    leaderboard: leaderboardRouter,
+    analytics: analyticsRouter,
+    ngo: ngoRouter
 });
 
 // export type definition of API

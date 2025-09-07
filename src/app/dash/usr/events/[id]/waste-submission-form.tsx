@@ -13,7 +13,6 @@ import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Upload, Camera, MapPin, Trash2, Award, X, CheckCircle } from "lucide-react"
 import { toast } from "sonner"
-import { put } from '@vercel/blob'
 
 interface WasteSubmissionFormProps {
     eventId: number
@@ -66,16 +65,31 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
         }
 
         try {
-            const timestamp = Date.now()
-            const filename = `${type}-${timestamp}-${file.name}`
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('folder', 'waste-collection')
 
-            const blob = await put(filename, file, {
-                access: 'public',
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData,
             })
 
-            return blob.url
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Upload failed')
+            }
+
+            const data = await response.json()
+            console.log('Upload success:', data)
+
+            if (data.files && data.files.length > 0) {
+                return data.files[0].url
+            } else {
+                throw new Error('No file URL returned')
+            }
         } catch (error) {
-            toast.error("Failed to upload image")
+            console.error('Upload error:', error)
+            toast.error(error instanceof Error ? error.message : "Failed to upload image")
             throw error
         }
     }
@@ -100,7 +114,9 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
         }
 
         try {
+            console.log(`Uploading ${type} image:`, file.name, file.size)
             const url = await uploadImage(file, type, index)
+            console.log(`Upload successful for ${type}:`, url)
 
             if (type === 'before') {
                 setBeforeImage(prev => ({ ...prev, url, uploading: false }))
@@ -116,6 +132,7 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
 
             toast.success("Image uploaded successfully!")
         } catch (error) {
+            console.error(`Upload failed for ${type}:`, error)
             if (type === 'before') {
                 setBeforeImage({ file: null, preview: null, url: null, uploading: false })
             } else if (type === 'after') {
@@ -156,6 +173,14 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
         const wasteImageUrls = wasteImages
             .filter(img => img.url)
             .map(img => img.url!)
+
+        // Debug logging
+        console.log("Submission data:", {
+            beforeImage: beforeImage.url,
+            afterImage: afterImage.url,
+            wasteImageUrls,
+            wasteImages
+        })
 
         try {
             submitParticipationMutation.mutate({
@@ -322,13 +347,27 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
                                                 <CheckCircle className="h-4 w-4 text-black" />
                                             </div>
                                         )}
-                                        <button
-                                            type="button"
-                                            onClick={() => setBeforeImage({ file: null, preview: null, url: null, uploading: false })}
-                                            className="absolute top-2 left-2 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <X className="h-4 w-4 text-white" />
-                                        </button>
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center space-x-2">
+                                            <label className="bg-[#01DE82] hover:bg-[#01DE82]/90 text-black px-3 py-1 rounded text-sm cursor-pointer">
+                                                Replace
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0]
+                                                        if (file) handleImageUpload(file, 'before')
+                                                    }}
+                                                />
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setBeforeImage({ file: null, preview: null, url: null, uploading: false })}
+                                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#01DE82]/50 rounded-lg cursor-pointer bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
@@ -372,13 +411,27 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
                                                 <CheckCircle className="h-4 w-4 text-black" />
                                             </div>
                                         )}
-                                        <button
-                                            type="button"
-                                            onClick={() => setAfterImage({ file: null, preview: null, url: null, uploading: false })}
-                                            className="absolute top-2 left-2 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <X className="h-4 w-4 text-white" />
-                                        </button>
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center space-x-2">
+                                            <label className="bg-[#01DE82] hover:bg-[#01DE82]/90 text-black px-3 py-1 rounded text-sm cursor-pointer">
+                                                Replace
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0]
+                                                        if (file) handleImageUpload(file, 'after')
+                                                    }}
+                                                />
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => setAfterImage({ file: null, preview: null, url: null, uploading: false })}
+                                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
                                     </div>
                                 ) : (
                                     <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#01DE82]/50 rounded-lg cursor-pointer bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
@@ -428,13 +481,27 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
                                                         <CheckCircle className="h-3 w-3 text-black" />
                                                     </div>
                                                 )}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeWasteImage(index)}
-                                                    className="absolute top-1 left-1 bg-red-500 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                >
-                                                    <X className="h-3 w-3 text-white" />
-                                                </button>
+                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center space-x-1">
+                                                    <label className="bg-[#01DE82] hover:bg-[#01DE82]/90 text-black px-2 py-1 rounded text-xs cursor-pointer">
+                                                        Replace
+                                                        <input
+                                                            type="file"
+                                                            className="hidden"
+                                                            accept="image/*"
+                                                            onChange={(e) => {
+                                                                const file = e.target.files?.[0]
+                                                                if (file) handleImageUpload(file, 'waste', index)
+                                                            }}
+                                                        />
+                                                    </label>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeWasteImage(index)}
+                                                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
                                             </div>
                                         ) : (
                                             <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-[#01DE82]/50 rounded-lg cursor-pointer bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
@@ -470,30 +537,39 @@ export default function WasteSubmissionForm({ eventId, onSuccess }: WasteSubmiss
                 </Card>
 
                 {/* Submit Button */}
-                <Button
-                    type="submit"
-                    disabled={
-                        !formData.wasteCollectedKg ||
-                        parseFloat(formData.wasteCollectedKg) < 0.1 ||
-                        submitParticipationMutation.isPending ||
-                        beforeImage.uploading ||
-                        afterImage.uploading ||
-                        wasteImages.some(img => img.uploading)
-                    }
-                    className="w-full bg-gradient-to-r from-[#01DE82] to-[#05614B] text-black font-bold py-3 hover:from-[#01DE82]/90 hover:to-[#05614B]/90 transition-all duration-300 shadow-lg hover:shadow-[#01DE82]/25"
-                >
-                    {submitParticipationMutation.isPending ? (
-                        <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
-                            Submitting...
-                        </>
-                    ) : (
-                        <>
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Submit Waste Collection & Earn {estimatedXP} XP
-                        </>
-                    )}
-                </Button>
+                <div className="space-y-4">
+                    {/* Debug info */}
+                    <div className="text-xs text-gray-400 p-2 bg-gray-800/30 rounded">
+                        <div>Before: {beforeImage.url ? '✓ Uploaded' : beforeImage.uploading ? '⏳ Uploading' : '❌ No image'}</div>
+                        <div>After: {afterImage.url ? '✓ Uploaded' : afterImage.uploading ? '⏳ Uploading' : '❌ No image'}</div>
+                        <div>Waste images: {wasteImages.filter(img => img.url).length}/{wasteImages.length}</div>
+                    </div>
+
+                    <Button
+                        type="submit"
+                        disabled={
+                            !formData.wasteCollectedKg ||
+                            parseFloat(formData.wasteCollectedKg) < 0.1 ||
+                            submitParticipationMutation.isPending ||
+                            beforeImage.uploading ||
+                            afterImage.uploading ||
+                            wasteImages.some(img => img.uploading)
+                        }
+                        className="w-full bg-gradient-to-r from-[#01DE82] to-[#05614B] text-black font-bold py-3 hover:from-[#01DE82]/90 hover:to-[#05614B]/90 transition-all duration-300 shadow-lg hover:shadow-[#01DE82]/25"
+                    >
+                        {submitParticipationMutation.isPending ? (
+                            <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                                Submitting...
+                            </>
+                        ) : (
+                            <>
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Submit Waste Collection & Earn {estimatedXP} XP
+                            </>
+                        )}
+                    </Button>
+                </div>
             </form>
         </div>
     )

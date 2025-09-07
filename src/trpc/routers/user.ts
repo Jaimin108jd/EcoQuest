@@ -514,4 +514,32 @@ export const userRouter = createTRPCRouter({
             return pointsHistory
         }),
 
+    // Get current user details
+    getCurrentUser: protectedProcedure
+        .query(async ({ ctx }) => {
+            const kindeId = ctx.user?.id
+            if (!kindeId) {
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message: "User not authenticated",
+                })
+            }
+
+            const user = await db.user.findFirst({
+                where: { kindeId },
+                include: {
+                    ngo: true
+                }
+            })
+
+            if (!user) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found",
+                })
+            }
+
+            return user
+        }),
+
 });

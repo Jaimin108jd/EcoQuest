@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Plus, Calendar, Users, Target, Clock } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -103,6 +104,7 @@ export function OrganizerDashboardClient() {
     const [activeTab, setActiveTab] = useState("all")
     const queryClient = useQueryClient()
     const trpc = useTRPC()
+    const router = useRouter()
 
     // Fetch user's events
     const { data: events = [], isLoading: eventsLoading, refetch: refetchEvents } = useQuery({
@@ -179,6 +181,10 @@ export function OrganizerDashboardClient() {
         }
     }
 
+    const handleViewDetails = (event: any) => {
+        router.push(`/dash/org/events/${event.id}`)
+    }
+
     const tabCounts = {
         all: events.length,
         upcoming: events.filter(e => e.status === "UPCOMING").length,
@@ -253,6 +259,7 @@ export function OrganizerDashboardClient() {
                                     onStart={handleStartEvent}
                                     onEnd={handleEndEvent}
                                     onDelete={handleDeleteEvent}
+                                    onViewDetails={handleViewDetails}
                                     isLoading={eventsLoading}
                                 />
                             </TabsContent>

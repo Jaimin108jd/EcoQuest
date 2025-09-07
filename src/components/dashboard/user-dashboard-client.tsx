@@ -103,15 +103,15 @@ function XPProgressCard({ userXP, participationStats, isLoading }: { userXP: any
     // Calculate level and XP correctly
     const totalXP = userXP?.totalXP || 0
     const currentLevel = userXP?.currentLevel || 1
-    
+
     // XP required for current level (Level N requires N * 100 total XP)
     const xpForCurrentLevel = (currentLevel - 1) * 100
     const xpForNextLevel = currentLevel * 100
-    
+
     // Current progress within the level
     const currentLevelXP = totalXP - xpForCurrentLevel
     const xpNeededForNext = Math.max(0, xpForNextLevel - totalXP)
-    
+
     // Progress percentage for current level (handle case where user has reached next level)
     const progressPercentage = currentLevelXP >= 100 ? 100 : (currentLevelXP / 100) * 100
 
@@ -227,8 +227,8 @@ function RecentActivitiesCard({ activities, isLoading }: { activities: any[], is
                                     </p>
                                 </div>
                                 <div className="text-white/40 text-xs">
-                                    {activity.createdAt ? new Date(activity.createdAt).toLocaleDateString() : 
-                                     activity.event?.date ? new Date(activity.event.date).toLocaleDateString() : "Recent"}
+                                    {activity.createdAt ? new Date(activity.createdAt).toLocaleDateString() :
+                                        activity.event?.date ? new Date(activity.event.date).toLocaleDateString() : "Recent"}
                                 </div>
                             </div>
                         ))}
@@ -624,12 +624,9 @@ export function UserDashboardClient({ user }: UserDashboardClientProps) {
         }
     })
 
-    // Get registered event IDs for checking
-    const registeredEventIds = new Set(registrations.map(r => r.event.id))
 
     // Choose which events to show based on radius
     const eventsToShow = radiusKm >= 500 ? allEvents : nearbyEvents
-    const eventsLoading = radiusKm >= 500 ? allEventsLoading : nearbyLoading
 
     // Filter events based on search
     const filteredNearbyEvents = eventsToShow.filter(event =>
@@ -639,36 +636,7 @@ export function UserDashboardClient({ user }: UserDashboardClientProps) {
         event.locationName.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
-    // Get events by tab
-    const getEventsByTab = () => {
-        switch (activeTab) {
-            case "dashboard":
-                return [] // Dashboard doesn't show events list
-            case "discover":
-                return filteredNearbyEvents
-            case "all":
-                return eventsToShow.filter(event =>
-                    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    event.ngo.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    event.locationName.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-            case "registered":
-                return registrations.map(r => r.event)
-            case "completed":
-                return registrations.filter(r => r.event.status === "COMPLETED").map(r => r.event)
-            default:
-                return []
-        }
-    }
 
-    const handleRegister = (eventId: number) => {
-        registerMutation.mutate({ eventId })
-    }
-
-    const handleUnregister = (eventId: number) => {
-        unregisterMutation.mutate({ eventId })
-    }
 
     const tabCounts = {
         discover: filteredNearbyEvents.length,
@@ -689,83 +657,82 @@ export function UserDashboardClient({ user }: UserDashboardClientProps) {
                         Discover and join environmental cleanup events near you
                     </p>
                 </div>
-                <JoinEventDialog />
             </div>
 
 
-                <div className="space-y-8">
-                    {/* Stats Cards */}
-                    <DashboardStats
-                        registeredEvents={userStats?.registrationStats.totalRegistrations || 0}
-                        completedEvents={userStats?.registrationStats.completedEvents || 0}
-                        totalWasteCollected={userStats?.participationStats.totalWasteCollected || 0}
-                        upcomingEvents={userStats?.registrationStats.upcomingEvents || 0}
-                        totalXP={userStats?.userXP.totalXP || 0}
-                        currentLevel={userStats?.userXP.currentLevel || 1}
-                        currentStreak={userStats?.userXP.currentStreak || 0}
-                        totalParticipations={userStats?.participationStats.totalParticipations || 0}
+            <div className="space-y-8">
+                {/* Stats Cards */}
+                <DashboardStats
+                    registeredEvents={userStats?.registrationStats.totalRegistrations || 0}
+                    completedEvents={userStats?.registrationStats.completedEvents || 0}
+                    totalWasteCollected={userStats?.participationStats.totalWasteCollected || 0}
+                    upcomingEvents={userStats?.registrationStats.upcomingEvents || 0}
+                    totalXP={userStats?.userXP.totalXP || 0}
+                    currentLevel={userStats?.userXP.currentLevel || 1}
+                    currentStreak={userStats?.userXP.currentStreak || 0}
+                    totalParticipations={userStats?.participationStats.totalParticipations || 0}
+                    isLoading={statsLoading}
+                />
+
+                {/* Dashboard Cards Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* XP Progress Card */}
+                    <XPProgressCard
+                        userXP={userStats?.userXP}
+                        participationStats={userStats?.participationStats}
                         isLoading={statsLoading}
                     />
 
-                    {/* Dashboard Cards Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* XP Progress Card */}
-                        <XPProgressCard 
-                            userXP={userStats?.userXP} 
-                            participationStats={userStats?.participationStats}
-                            isLoading={statsLoading} 
-                        />
-
-                        {/* Recent Activities Card */}
-                        <RecentActivitiesCard
-                            activities={userStats?.recentActivities || []}
-                            isLoading={statsLoading}
-                        />
-                    </div>
-
-                    {/* Leaderboard Section */}
-                    <Leaderboard />
-
-                    {/* Quick Actions Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Card
-                            className="bg-[#020E0E]/60 backdrop-blur-xl border-[#01DE82]/20 hover:border-[#01DE82]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#01DE82]/10 cursor-pointer group"
-                            onClick={() => setActiveTab("discover")}
-                        >
-                            <CardContent className="p-6 text-center">
-                                <Search className="h-8 w-8 text-[#01DE82] mx-auto mb-2" />
-                                <h3 className="text-white font-semibold mb-1">Discover Events</h3>
-                                <p className="text-white/70 text-sm">Find cleanup events near you</p>
-                                <p className="text-[#01DE82] text-lg font-bold mt-2">{tabCounts.discover} nearby</p>
-                            </CardContent>
-                        </Card>
-
-                        <Card
-                            className="bg-[#020E0E]/60 backdrop-blur-xl border-[#01DE82]/20 hover:border-[#01DE82]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#01DE82]/10 cursor-pointer group"
-                            onClick={() => setActiveTab("registered")}
-                        >
-                            <CardContent className="p-6 text-center">
-                                <Calendar className="h-8 w-8 text-blue-400 mx-auto mb-2" />
-                                <h3 className="text-white font-semibold mb-1">My Events</h3>
-                                <p className="text-white/70 text-sm">Events you've registered for</p>
-                                <p className="text-blue-400 text-lg font-bold mt-2">{tabCounts.registered} upcoming</p>
-                            </CardContent>
-                        </Card>
-
-                        <Card
-                            className="bg-[#020E0E]/60 backdrop-blur-xl border-[#01DE82]/20 hover:border-[#01DE82]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#01DE82]/10 cursor-pointer group"
-                            onClick={() => setActiveTab("completed")}
-                        >
-                            <CardContent className="p-6 text-center">
-                                <Trophy className="h-8 w-8 text-green-400 mx-auto mb-2" />
-                                <h3 className="text-white font-semibold mb-1">Completed</h3>
-                                <p className="text-white/70 text-sm">Events you've participated in</p>
-                                <p className="text-green-400 text-lg font-bold mt-2">{tabCounts.completed} completed</p>
-                            </CardContent>
-                        </Card>
-                    </div>
+                    {/* Recent Activities Card */}
+                    <RecentActivitiesCard
+                        activities={userStats?.recentActivities || []}
+                        isLoading={statsLoading}
+                    />
                 </div>
-        
+
+                {/* Leaderboard Section */}
+                <Leaderboard />
+
+                {/* Quick Actions Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card
+                        className="bg-[#020E0E]/60 backdrop-blur-xl border-[#01DE82]/20 hover:border-[#01DE82]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#01DE82]/10 cursor-pointer group"
+                        onClick={() => setActiveTab("discover")}
+                    >
+                        <CardContent className="p-6 text-center">
+                            <Search className="h-8 w-8 text-[#01DE82] mx-auto mb-2" />
+                            <h3 className="text-white font-semibold mb-1">Discover Events</h3>
+                            <p className="text-white/70 text-sm">Find cleanup events near you</p>
+                            <p className="text-[#01DE82] text-lg font-bold mt-2">{tabCounts.discover} nearby</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card
+                        className="bg-[#020E0E]/60 backdrop-blur-xl border-[#01DE82]/20 hover:border-[#01DE82]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#01DE82]/10 cursor-pointer group"
+                        onClick={() => setActiveTab("registered")}
+                    >
+                        <CardContent className="p-6 text-center">
+                            <Calendar className="h-8 w-8 text-blue-400 mx-auto mb-2" />
+                            <h3 className="text-white font-semibold mb-1">My Events</h3>
+                            <p className="text-white/70 text-sm">Events you've registered for</p>
+                            <p className="text-blue-400 text-lg font-bold mt-2">{tabCounts.registered} upcoming</p>
+                        </CardContent>
+                    </Card>
+
+                    <Card
+                        className="bg-[#020E0E]/60 backdrop-blur-xl border-[#01DE82]/20 hover:border-[#01DE82]/40 transition-all duration-300 hover:shadow-lg hover:shadow-[#01DE82]/10 cursor-pointer group"
+                        onClick={() => setActiveTab("completed")}
+                    >
+                        <CardContent className="p-6 text-center">
+                            <Trophy className="h-8 w-8 text-green-400 mx-auto mb-2" />
+                            <h3 className="text-white font-semibold mb-1">Completed</h3>
+                            <p className="text-white/70 text-sm">Events you've participated in</p>
+                            <p className="text-green-400 text-lg font-bold mt-2">{tabCounts.completed} completed</p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+
 
 
 

@@ -421,6 +421,9 @@ export const eventsRouter = createTRPCRouter({
                 // Check if current user has participated
                 const userParticipation = event.participations.find(p => p.userId === user.id)
 
+                // Check if current user has submitted feedback
+                const userFeedback = event.feedbacks.find(f => f.userId === user.id)
+
                 return {
                     ...event,
                     // Only show join code to organizers or event creators
@@ -436,6 +439,7 @@ export const eventsRouter = createTRPCRouter({
                         isRegistered: !!userRegistration,
                         hasJoined: !!userRegistration?.hasJoined,
                         hasParticipated: !!userParticipation,
+                        hasFeedback: !!userFeedback,
                         isCreator: event.creatorId === user.id,
                         isOrganizer: user.role === "ORGANISER",
                         canRegister: event.status === "UPCOMING" && !userRegistration,
@@ -748,7 +752,7 @@ export const eventsRouter = createTRPCRouter({
                         message: "Already checked in to this event",
                     })
                 }
-                
+
                 // If registered but not joined, check them in
                 const updatedRegistration = await db.eventRegistration.update({
                     where: {
@@ -1232,6 +1236,104 @@ export const eventsRouter = createTRPCRouter({
             await checkAndAwardBadges(user.id)
 
             return participation
+        }),
+
+    // Submit feedback for completed events
+    submitFeedback: protectedProcedure
+        .input(z.object({
+            eventId: z.number(),
+            rating: z.number().min(1).max(5),
+            comment: z.string().min(1, "Comment is required").max(1000, "Comment must be less than 1000 characters"),
+            category: z.string().default("general"),
+            isPublic: z.boolean().default(true),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const kindeId = ctx.user?.id;
+            if (!kindeId) {
+                throw new TRPCError({
+                    code: "UNAUTHORIZED",
+                    message: "User not authenticated",
+                })
+            }
+
+            const user = await db.user.findFirst({
+                where: { kindeId }
+            })
+
+            if (!user) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "User not found",
+                })
+            }
+
+            // Check if event exists and is completed
+            const event = await db.event.findUnique({
+                where: { id: input.eventId },
+                select: { id: true, status: true }
+            })
+
+            if (!event) {
+                throw new TRPCError({
+                    code: "NOT_FOUND",
+                    message: "Event not found",
+                })
+            }
+
+            if (event.status !== "COMPLETED") {
+                throw new TRPCError({
+                    code: "BAD_REQUEST",
+                    message: "Can only submit feedback for completed events",
+                })
+            }
+
+            // Check if user participated in the event
+            const participation = await db.eventParticipation.findUnique({
+                where: {
+                    userId_eventId: {
+                        userId: user.id,
+                        eventId: input.eventId
+                    }
+                }
+            })
+
+            if (!participation) {
+                throw new TRPCError({
+                    code: "FORBIDDEN",
+                    message: "You must participate in the event to leave feedback",
+                })
+            }
+
+            // Check if feedback already exists
+            const existingFeedback = await db.eventFeedback.findUnique({
+                where: {
+                    userId_eventId: {
+                        userId: user.id,
+                        eventId: input.eventId
+                    }
+                }
+            })
+
+            if (existingFeedback) {
+                throw new TRPCError({
+                    code: "CONFLICT",
+                    message: "You have already submitted feedback for this event",
+                })
+            }
+
+            // Create feedback
+            const feedback = await db.eventFeedback.create({
+                data: {
+                    userId: user.id,
+                    eventId: input.eventId,
+                    rating: input.rating,
+                    comment: input.comment,
+                    category: input.category,
+                    isPublic: input.isPublic,
+                }
+            })
+
+            return feedback
         }),
 })
 
